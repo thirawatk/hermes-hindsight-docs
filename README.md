@@ -422,3 +422,39 @@ All 6 active banks passed retain → recall verification:
 ---
 
 *This document is maintained as part of the Hermes Agent operational runbook. Last updated: 2026-05-30.*
+
+---
+
+## Memory Architecture (Updated 2026-05-30)
+
+### Three-Layer Memory System
+
+| Layer | Capacity | What It Stores | Access |
+|-------|----------|----------------|--------|
+| **Memory Tool** | 5,000 chars/profile | Dense vital facts: server layout, IDs, critical config, audit results | injected as text context every session startup |
+| **Hindsight Banks** | Unlimited (923GB) | Auto-extracted facts from every conversation: experiences, observations, world knowledge | Auto-recalled into LLM context on every turn |
+| **GitHub Docs** | Unlimited | Full operational runbook, architecture reference, config docs | Manual reference at https://github.com/thirawatk/hermes-hindsight-docs |
+
+### Memory Tool Limits (All Profiles)
+
+All 5 profiles have been standardized to:
+- `memory_char_limit: 5000` (raised from 2,200)
+- `user_char_limit: 3000` (raised from 1,375)
+
+### Hindsight Bank Population
+
+All 5 profile banks have been populated with core user facts:
+- User preferences (brutal honesty, margin of safety, systematic processes)
+- Proxmox/LXC infrastructure layout
+- Storage architecture (rpool + ssd-vault)
+- OpenRouter model configuration per profile
+- GitHub docs repo URL
+- Hindsight audit status
+
+### How the Three Layers Work Together
+
+1. **Memory Tool** → Survives session restarts as injected context. Limited capacity, must be curated carefully.
+2. **Hindsight** → Grows automatically via auto-retain. Query explicitly for deep recall.
+3. **GitHub Docs** → Version-controlled offline backup for procedures and reference material.
+
+> **Key Principle:** Memory tool for *must-know-every-session* facts. Hindsight for *accumulated knowledge*. GitHub docs for *procedures and runbooks*.
