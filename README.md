@@ -520,3 +520,38 @@ hermes kanban show <task_id> --json
 | `running` | Dispatcher picked it up, worker is executing |
 | `blocked` | Worker paused, waiting for human input |
 | `done` | Completed successfully |
+
+---
+
+## Dashboard (Grafana LXC — CT 501)
+
+| Property | Value |
+|----------|-------|
+| **Host** | CT 501 (Grafana LXC) |
+| **IP** | 10.10.20.51 |
+| **Port** | 8080 |
+| **URL** | http://10.10.20.51:8080 |
+| **Service** | `hermes-dashboard.service` (systemd) |
+| **Stack** | FastAPI + Jinja2 + Chart.js + Pico CSS |
+| **Data Source** | SSH tunnel to CT 301 (10.10.20.31) for Hermes + Hindsight data |
+
+### Pages
+- `/` — Overview: Hindsight health, gateway status, storage gauges, bank node chart
+- `/kanban` — Kanban board view with task lists per board
+- `/hermes` — Gateway process table, storage details, bank stats table
+- `/hindsight` — Bank browser with fact type chart + recall search
+
+### API Endpoints
+- `GET /api/gateway` — All gateway processes with PID, CPU, memory
+- `GET /api/storage` — rpool + ssd-vault usage
+- `GET /api/hindsight/health` — Hindsight API health
+- `GET /api/hindsight/banks` — All banks with stats
+- `POST /api/hindsight/recall/{bank_id}` — Search memories
+- `GET /api/kanban/boards` — List all boards
+- `GET /api/kanban/tasks/{board_slug}` — Tasks per board
+
+### Kanban Co-Working (Buddy ↔ Monitor)
+- Board: `buddy-monitor` (slug: `buddy-monitor`)
+- Buddy orchestrates: creates tasks, assigns to monitor
+- Monitor executes: SSH to CT 501, build/deploy/fix dashboard
+- Shared workspace: `dir:/root/.hermes/kanban/buddy-monitor/workspace`
