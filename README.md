@@ -555,3 +555,31 @@ hermes kanban show <task_id> --json
 - Buddy orchestrates: creates tasks, assigns to monitor
 - Monitor executes: SSH to CT 501, build/deploy/fix dashboard
 - Shared workspace: `dir:/root/.hermes/kanban/buddy-monitor/workspace`
+
+---
+
+## Dashboard Deployment (Final)
+
+### Access
+- **Grafana**: `http://10.10.20.51:3000` — Dashboard "Hermes Overview" at `/d/hermes-overview`
+- **Direct Dashboard**: `http://10.10.20.51:8080`
+
+### Architecture
+- CT 501 (monitor/Grafana LXC) hosts both Grafana (Docker, port 3000) and Hermes Dashboard (FastAPI, port 8080)
+- Dashboard embeds into Grafana as iframe panels via text panels with `disable_sanitize_html` enabled
+- Dashboard reads Hermes/Hindsight data from CT 301 via SSH tunnel
+
+### Grafana Config Changes
+- `GF_SECURITY_ALLOW_EMBEDDING=true`
+- `GF_PANELS_DISABLE_SANITIZE_HTML=true`
+- Mounted custom `/opt/monitoring/grafana.ini`
+
+### Kanban Co-Working
+- Board: `buddy-monitor` on CT 301
+- Buddy creates tasks → assigns to monitor
+- Monitor SSHes to CT 501 to build/fix/deploy
+- Task `t_e690213e` "Build Dashboard on CT 501" completed by monitor
+
+### Known Issues
+- Jinja2 3.1 + Starlette TemplateResponse cache bug: `TypeError: unhashable type: dict`
+  - Fix: Use `jinja2.Environment(cache_size=0)` instead of `Jinja2Templates`
