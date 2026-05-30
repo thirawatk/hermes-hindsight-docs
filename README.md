@@ -458,3 +458,65 @@ All 5 profile banks have been populated with core user facts:
 3. **GitHub Docs** → Version-controlled offline backup for procedures and reference material.
 
 > **Key Principle:** Memory tool for *must-know-every-session* facts. Hindsight for *accumulated knowledge*. GitHub docs for *procedures and runbooks*.
+
+---
+
+## Kanban: Buddy ↔ Monitor
+
+A dedicated Kanban board (`buddy-monitor`) orchestrates work between the buddy (orchestrator) and monitor (worker) profiles.
+
+### Board Info
+
+| Property | Value |
+|----------|-------|
+| **Slug** | `buddy-monitor` |
+| **Name** | Buddy <-> Monitor |
+| **DB Path** | `~/.hermes/kanban/boards/buddy-monitor/kanban.db` |
+| **Workspace** | `dir:/root/.hermes/kanban/buddy-monitor/workspace` |
+| **Buddy Role** | Orchestrator — decompose tasks, create cards, assign to monitor |
+| **Monitor Role** | Worker — execute system checks, report findings |
+
+### Workflow
+
+```
+Tae talks to buddy
+  → buddy decomposes the request
+  → buddy creates Kanban tasks assigned to monitor
+  → dispatcher picks up ready tasks on monitor's gateway
+  → monitor executes and reports back via comments
+  → buddy synthesizes and reports to Tae
+```
+
+### CLI Quick Reference
+
+```bash
+# List tasks on the buddy-monitor board
+hermes kanban list
+
+# Create a task for monitor
+hermes kanban create "Monitor: <task description>" \
+  --assignee monitor \
+  --body "Detailed instructions"
+
+# Create a task for buddy
+hermes kanban create "Buddy: <task description>" \
+  --assignee buddy \
+  --body "Detailed instructions"
+
+# Check task status
+hermes kanban show <task_id>
+
+# View task comments/progress
+hermes kanban show <task_id> --json
+```
+
+### Task States
+
+| State | Meaning |
+|-------|---------|
+| `triage` | Needs specification before execution |
+| `todo` | Waiting for parent tasks to complete |
+| `ready` | Queued for dispatch |
+| `running` | Dispatcher picked it up, worker is executing |
+| `blocked` | Worker paused, waiting for human input |
+| `done` | Completed successfully |
