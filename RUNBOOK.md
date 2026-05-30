@@ -42,6 +42,11 @@ done
 echo ""
 echo -n "Hindsight systemd: "
 systemctl is-active hindsight-api.service
+
+# Storage
+echo ""
+echo "Storage:"
+df -h / /mnt/hindsight 2>/dev/null | awk 'NR==1{print"  " $0} NR>1{print"  " $2 " used / " $3 " free (" $5 ") " $6}'
 ```
 
 Save as `~/bin/hindsight-health.sh` and run with `bash ~/bin/hindsight-health.sh`.

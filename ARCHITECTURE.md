@@ -164,6 +164,15 @@ HINDSIGHT_BUDGET=mid                    # low | mid | high
 # HINDSIGHT_API_KEY is cosmetic for local mode (not validated)
 ```
 
+## Storage Layout
+
+| ZFS Pool | Size | Used | Mount | Purpose |
+|----------|------|------|-------|---------|
+| `rpool` | 20 GB | 7.4 GB (37%) | `/` | OS, Hermes Agent, gateway processes, Hindsight API, LXC rootfs |
+| `ssd-vault` | 923 GB | 78 MB (1%) | `/mnt/hindsight` | Hindsight PostgreSQL data + vector indexes + all memory banks |
+
+Both pools are ZFS datasets on the Proxmox host. The Hindsight API binary runs on `rpool` (OS disk) while all persistent database files and vector indexes live on `ssd-vault` (dedicated SSD). `ssd-vault` is mounted into the LXC at `/mnt/hindsight` via a bind-mount or ZFS dataset passthrough.
+
 ## File Paths Reference
 
 | File | Path |

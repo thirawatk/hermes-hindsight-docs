@@ -38,6 +38,15 @@ Hindsight is a **local, self-hosted memory system** that replaces paid cloud mem
 | **Embedding Provider** | Cohere |
 | **Database** | PostgreSQL (local) |
 
+### Storage Layout
+
+| Pool | Size | Used | Mount | Purpose |
+|------|------|------|-------|---------|
+| `rpool` | 20 GB | 7.4 GB (37%) | `/` | OS, Hermes Agent, gateway processes, Hindsight API binary |
+| `ssd-vault` | 923 GB | 78 MB (1%) | `/mnt/hindsight` | Hindsight data — PostgreSQL database, vector indexes, memory banks |
+
+Hindsight's PostgreSQL data and vector indexes live entirely on `ssd-vault`. At the current growth rate (~20–30 nodes per profile/month), this storage will last for decades.
+
 ### Why Hindsight
 
 - **Zero cost** after initial setup — all data stays on your server
