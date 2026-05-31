@@ -1,0 +1,74 @@
+{
+  "id": 5,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "content": "<iframe src=\"https://monitor.271224.xyz/dashboard/\" width=\"100%\" height=\"700\" frameborder=\"0\" style=\"border:none;\"></iframe>",
+        "mode": "html"
+      },
+      "title": "Dashboard \u2014 Overview",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "content": "<iframe src=\"https://hermes.271224.xyz/\" style=\"width:100%;height:600px;border:none;\"></iframe>",
+        "mode": "html"
+      },
+      "title": "Hermes Dashboard",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 3,
+      "options": {
+        "content": "<iframe src=\"https://monitor.271224.xyz/dashboard/hindsight\" width=\"100%\" height=\"700\" frameborder=\"0\" style=\"border:none;\"></iframe>",
+        "mode": "html"
+      },
+      "title": "Dashboard \u2014 Hindsight Browser",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "content": "<iframe src=\"https://monitor.271224.xyz/dashboard/kanban\" width=\"100%\" height=\"700\" frameborder=\"0\" style=\"border:none;\"></iframe>",
+        "mode": "html"
+      },
+      "title": "Dashboard \u2014 Kanban",
+      "type": "text"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "tags": [
+    "hermes",
+    "monitoring"
+  ],
+  "timezone": "Asia/Bangkok",
+  "title": "Hermes Overview",
+  "uid": "hermes-overview"
+}

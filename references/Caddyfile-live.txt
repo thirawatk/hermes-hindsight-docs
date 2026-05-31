@@ -1,0 +1,162 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+(cloudflare_tls) {
+	tls {
+		issuer acme {
+			dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+			resolvers 1.1.1.1
+		}
+	}
+}
+
+:80 {
+	# Set this path to your site's directory.
+	root * /usr/share/caddy
+
+	# Enable the static file server.
+	file_server
+
+	# Another common task is to set up a reverse proxy:
+	# reverse_proxy localhost:8080
+
+	# Or serve a PHP site through php-fpm:
+	# php_fastcgi localhost:9000
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+
+caddy.271224.xyz {
+	import cloudflare_tls
+	respond "Caddy Gateway is Online" 200
+}
+
+router.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://router.271224.xyz
+}
+
+ap1.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://192.168.2.2 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+ap2.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://192.168.2.3 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+dns.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://10.10.20.22:53443 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+pve1.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://10.10.20.11:8006 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+		# Proxmox requires the Host header to match the destination for CSRF safety
+		header_up Host {upstream_hostport}
+		header_up X-Real-IP {remote_host}
+	}
+}
+
+bentopdf.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy https://bentopdf.271224.xyz.lan:8443 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+paperless.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy http://paperless.271224.xyz.lan:8000 {
+		#		header_up Host {upstream_hostport}
+		#		header_up X-Real-IP {remote_host}
+	}
+}
+
+joplin.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy http://joplin.271224.xyz.lan:22300 {
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+		header_up X-Real-IP {remote_host}
+	}
+}
+
+calibre.271224.xyz {
+	import cloudflare_tls
+	#	Match to WebDAV
+	handle /sync* {
+		reverse_proxy http://calibre-web.271224.xyz.lan {
+			#			tls_insecure_skip_verify
+			#			header_up Host {upstream_hostport}
+			#			header_up X-Real-IP {remote_host}
+		}
+	}
+	#	Catch upload
+	@upload_routes path_regexp upload ^/(upload|book/add|upload-new)
+	handle @upload_routes {
+		#		request_body {
+		#			max_size 200MB
+		#		}
+		reverse_proxy http://calibre-web.271224.xyz.lan:8083 {
+			#			dial_timeout 300s
+			#			read_timeout 300s
+			#			write_timeout 300s
+		}
+	}
+	#	Catch all
+	handle {
+		request_body {
+			max_size 10MB
+		}
+		reverse_proxy http://calibre-web.271224.xyz.lan:8083
+	}
+}
+
+jump.271224.xyz {
+	import cloudflare_tls
+	reverse_proxy http://jump-ubuntu.271224.xyz.lan
+}
+monitor.271224.xyz {
+    import cloudflare_tls
+    handle /dashboard/* {
+        uri strip_prefix /dashboard
+        reverse_proxy http://monitor.271224.xyz.lan:8080
+    }
+    reverse_proxy http://monitor.271224.xyz.lan:3000
+}
+
+hermes.271224.xyz {
+    import cloudflare_tls
+    reverse_proxy http://10.10.20.31:9119
+}
+
+
+

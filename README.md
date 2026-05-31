@@ -1,12 +1,27 @@
-# Hermes Agent — Hindsight Memory System
+# Hermes Agent — Complete Operations Documentation
 
-> **Complete operational documentation** for the Hindsight self-hosted memory backend powering Hermes Agent profiles.
+> **Full documentation** for the Hermes Agent infrastructure: Hindsight memory system, multi-profile Kanban, monitoring dashboard, and network architecture.
 >
-> **Verified:** 2026-05-30 — All 6 banks retain/recall tested end-to-end. 5 gateways online. Hindsight API v0.7.1 healthy.
+> **Last verified:** 2026-05-31 — All systems operational. 5 gateways online. Dashboard panels rendering. Kanban boards showing live data.
 
 ---
 
-## Table of Contents
+## Documentation Index
+
+| Document | Description |
+|----------|-------------|
+| **[README](README.md)** *(this file)* | Hindsight memory system — overview, architecture, config, runbook |
+| **[ARCHITECTURE](ARCHITECTURE.md)** | Hindsight deep dive — API surface, fact/link types, profile config |
+| **[RUNBOOK](RUNBOOK.md)** | Hindsight operations — health checks, manual retain/recall, backup/restore |
+| **[KANBAN](KANBAN.md)** | Multi-profile kanban system — boards, cross-profile dispatch, CLI reference |
+| **[DASHBOARD](DASHBOARD.md)** | Monitoring dashboard — FastAPI backend, Grafana integration, SPA, troubleshooting |
+| **[NETWORK](NETWORK.md)** | Network architecture — LXC inventory, Caddy routing, DNS, data flow diagrams |
+| **[MISTAKES](MISTAKES.md)** | Mistakes & solutions — 20+ mistakes with root cause analysis and fixes |
+| **[DIAGRAMS](DIAGRAMS.md)** | Architecture diagrams — Mermaid diagrams for all systems |
+
+---
+
+## Table of Contents (this file)
 
 - [Overview](#overview)
 - [Architecture](#architecture)
