@@ -2,7 +2,7 @@
 
 > **Full documentation** for the Hermes Agent infrastructure: Hindsight memory system, multi-profile Kanban, monitoring dashboard, and network architecture.
 >
-> **Last verified:** 2026-05-31 — All systems operational. 5 gateways online. Dashboard panels rendering. Kanban boards showing live data.
+> **Last verified:** 2026-06-05 — All systems operational. 5 gateways online. Dashboard panels rendering. Kanban boards showing live data.
 
 ---
 
@@ -41,7 +41,7 @@ Hindsight is a **local, self-hosted memory system** that replaces paid cloud mem
 
 | Property | Value |
 |----------|-------|
-| **API Version** | 0.7.1 |
+| **API Version** | 0.7.2 |
 | **API Mode** | `local_external` (self-hosted) |
 | **Memory Mode** | `hybrid` (vector + structured graph) |
 | **Recall Budget** | `mid` (balanced speed/coverage) |
@@ -50,9 +50,8 @@ Hindsight is a **local, self-hosted memory system** that replaces paid cloud mem
 | **Auto Retain** | ✅ Enabled |
 | **Retain Async** | ✅ Enabled |
 | **LLM Provider** | OpenRouter (`openrouter/owl-alpha`) |
-| **Embedding Provider** | Cohere |
-| **Database** | PostgreSQL (local) |
-
+| **Embedding Provider** | Local (`BAAI/bge-m3`, 1024-dim, multilingual) |
+| **Database** | PostgreSQL 16 + pgvector (local) |
 ### Storage Layout
 
 | Pool | Size | Used | Mount | Purpose |
@@ -93,7 +92,7 @@ Hindsight's PostgreSQL data and vector indexes live entirely on `ssd-vault`. At 
 │         └──────────────────┼──────────────────┐                 │
 │                            │                  │                 │
 │  ┌─────────────────────────┴──────────────────┴──────────┐      │
-│  │               Hindsight API v0.7.1                     │      │
+│  │               Hindsight API v0.7.2                     │      │
 │  │               PID 23500 (systemd)                      │      │
 │  │               127.0.0.1:8888                           │      │
 │  │                                                        │      │
@@ -123,7 +122,7 @@ Hindsight's PostgreSQL data and vector indexes live entirely on `ssd-vault`. At 
 
 2. Recall Flow (reading memories):
    Gateway → POST /v1/default/banks/{bank_id}/memories/recall
-           → Query embedding computed via Cohere
+           → Query embedding computed via local BGE-M3
            → Vector search + graph traversal
            → Top results returned within max_tokens budget
            → Facts injected into LLM context window
@@ -436,7 +435,7 @@ All 6 active banks passed retain → recall verification:
 
 ---
 
-*This document is maintained as part of the Hermes Agent operational runbook. Last updated: 2026-05-30.*
+*This document is maintained as part of the Hermes Agent operational runbook. Last updated: 2026-06-05.*
 
 ---
 
@@ -594,6 +593,38 @@ hermes kanban show <task_id> --json
 - Buddy creates tasks → assigns to monitor
 - Monitor SSHes to CT 501 to build/fix/deploy
 - Task `t_e690213e` "Build Dashboard on CT 501" completed by monitor
+
+---
+
+## Migration Log
+
+### 2026-06-05 — Embedding Provider: Cohere → Local BGE-M3
+
+**Reason:** Cohere Trial key rate-limited (429 errors) since May 31. All semantic search and memory ingestion blocked.
+
+**Migration path:**
+1. Cohere Trial → `BAAI/bge-large-en-v1.5` (local, 1024-dim) — temporary, English-only
+2. `bge-large` → `BAAI/bge-m3` (local, 1024-dim, multilingual) — permanent solution
+
+**Changes:**
+- Systemd service: `HINDSIGHT_API_EMBEDDINGS_LOCAL_MODEL=BAAI/bge-m3`
+- All 7 banks re-embedded (48 documents total)
+- Old embedding models cleaned from disk (freed ~2G)
+- Verification: recall works in both English and Thai
+
+**Impact:** Zero data migration needed (same 1024-dim). Nhoo can now use Thai language naturally in FA profile.
+
+### 2026-06-05 — Joplin Server Decommissioned
+
+**Reason:** Joplin was inactive, unnecessary middle-man. Docs moved to GitHub.
+
+**Changes:**
+- Cron job "Joplin Memory Sync" deleted
+- Sync scripts removed
+- CT 403 (joplin-server) removed from Proxmox
+- `/ssd-vault/joplin-data/` (3M) — pending cleanup
+- Documentation redirected to: https://github.com/thirawatk/house-infrastructure
+
 
 ### Known Issues
 - Jinja2 3.1 + Starlette TemplateResponse cache bug: `TypeError: unhashable type: dict`

@@ -200,4 +200,19 @@ git push
 - **Layer 2** prevents re-explaining infrastructure/configuration
 - **Layer 3** prevents re-documenting complex systems
 
+---
+
+### 2026-06-05 — Joplin Replaced by GitHub
+
+Joplin Server (CT 403) was decommissioned. It was a redundant middle-man:
+- Joplin sync script pushed MEMORY.md → Joplin LXC, but was one-way only
+- Joplin never injected context back into Hermes sessions
+- All structured documentation now lives in GitHub:
+  - `thirawatk/house-infrastructure` — infrastructure docs (network, hardware, LXC)
+  - `thirawatk/hermes-hindsight-docs` — Hindsight operations reference
+
+**Result:** Simpler stack. No Joplin server, no sync scripts, no CT 403.
+GitHub + Hindsight covers all documentation needs.
+
+
 Use all three together for compound knowledge growth.
