@@ -367,3 +367,35 @@ handle /dashboard/* {
 10. **Audit ALL references** when retiring a domain
 11. **CT ID ≠ IP last octet**
 12. **Grafana embeds need** `allow_embedding` and `disable_sanitize_html`
+
+---
+
+## Systemd Dual-Scope Mistakes
+
+### Mistake #9: Installing gateway services in both system and user scope
+
+**What happened:** 5 profile gateways (buddy, financialanalyst, investor, monitor, trader) had systemd service files in BOTH `/etc/systemd/system/` (system-level) AND `~/.config/systemd/user/` (user-level). Both used `--replace` flag + `Restart=always`.
+
+**Root cause:** The `hermes gateway service install` command was run without specifying scope, and at some point system-level services were also installed (possibly via `hermes doctor --fix` or manual installation). The `--replace` flag in ExecStart kills any existing instance before starting. System-level and user-level services kept killing each other in an infinite loop.
+
+**Impact:** 47+ restart cycles per profile, each consuming ~72MB RAM and ~3.7s CPU. Total resource waste: ~350MB RAM cycling, continuous process spawning.
+
+**Solution:** Removed the 5 system-level unit files, kept user-level services. Disabled and cleaned up.
+
+**Lesson:** NEVER install the same gateway service in both systemd scopes. User-level (`~/.config/systemd/user/`) is recommended for agent gateways. System-level (`/etc/systemd/system/`) should only be used for services that must run without any user login.
+
+---
+
+## Model Configuration Mistakes
+
+### Mistake #10: Commented-out API keys in profile .env files
+
+**What happened:** Model picker showed OpenCode Go and HuggingFace providers with 0 models for 6 of 8 profiles. The API keys were either commented out (# prefix) or completely missing from profile `.env` files.
+
+**Root cause:** When profiles were created, their `.env` files were copied from a template that had the keys commented out. The gateway's `load_hermes_dotenv()` loads from the profile's own `.env` + project `.env`, NOT from the user's main `~/.hermes/.env`. Each profile must have all keys explicitly present and uncommented.
+
+**Impact:** 6 profiles could not use OpenCode Go or HuggingFace models in the picker.
+
+**Solution:** Uncommented keys in 4 profiles, added missing keys to 2 profiles, restarted gateways.
+
+**Lesson:** When creating a new profile, always copy the FULL `.env` from default and verify all provider keys are active (not commented). Run: `grep -E "^[A-Z].*KEY=" /root/.hermes/profiles/{profile}/.env` to verify.
